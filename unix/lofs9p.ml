@@ -248,7 +248,9 @@ module New(Params : sig val root : string list end) = struct
           >>= fun () ->
           qid_of_path realpath
           >>*= fun qid ->
-          fids := Types.Fid.Map.add fid (Path.append path name) !fids;
+          let p = Path.append path name in
+          Printf.fprintf stderr "XXX binding %s -> %s\n%!" (Sexplib.Sexp.to_string (Types.Fid.sexp_of_t fid)) (Path.realpath p);
+          fids := Types.Fid.Map.add fid p !fids;
           Lwt.return (Result.Ok {
             Response.Create.qid;
             iounit = 512l;
@@ -262,6 +264,9 @@ module New(Params : sig val root : string list end) = struct
         >>= fun () ->
         qid_of_path realpath
         >>*= fun qid ->
+        let p = Path.append path name in
+        Printf.fprintf stderr "XXX binding %s -> %s\n%!" (Sexplib.Sexp.to_string (Types.Fid.sexp_of_t fid)) (Path.realpath p);
+
         fids := Types.Fid.Map.add fid (Path.append path name) !fids;
         Lwt.return (Result.Ok {
           Response.Create.qid;
