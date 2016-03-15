@@ -31,9 +31,11 @@ depends: [
   "cmdliner"
   "stringext"
   "fmt"
-  "lambda-term"
   "ocamlfind" {build}
   "ocamlbuild" {build}
   "alcotest" {test & >= "0.4.0"}
+]
+depopts: [
+  "lambda-term"
 ]
 available: [ocaml-version >= "4.02.0"]

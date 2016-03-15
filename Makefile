@@ -34,7 +34,6 @@ endif
 
 build:
 	$(OCAMLBUILD) $(PRODUCTS)
-	$(MAKE) 9p
 
 9p:
 	$(OCAMLBUILD) main.native
