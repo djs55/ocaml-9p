@@ -341,7 +341,7 @@ module Make(Log: Protocol_9p_s.LOG)(FLOW: V1_LWT.FLOW)(Filesystem: Protocol_9p_f
         Lwt.catch (fun () ->
           Filesystem.disconnect connection info
         ) (fun e ->
-          err (fun f -> f "Filesystem.disconnect caught: %s" (Printexc.to_string e));
+          error "Filesystem.disconnect caught: %s" (Printexc.to_string e);
           Lwt.return ()
         )
       );
