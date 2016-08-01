@@ -18,3 +18,5 @@
 include V1_LWT.FLOW
 
 val connect: Lwt_unix.file_descr -> flow
+
+val read_into: flow -> Cstruct.t -> [ `Eof | `Error of error | `Ok of unit ] Lwt.t

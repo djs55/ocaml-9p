@@ -61,6 +61,20 @@ let read flow =
       return (`Ok result)
   end
 
+let rec read_into flow buf =
+  if flow.closed then return `Eof
+  else if Cstruct.len buf = 0
+  then return (`Ok ())
+  else begin
+    Lwt_cstruct.read flow.fd buf
+    >>= function
+    | 0 ->
+      return `Eof
+    | n ->
+      let remaining = Cstruct.shift buf n in
+      read_into flow remaining
+  end
+
 let write flow buf =
   if flow.closed then return `Eof
   else
