@@ -2,4 +2,4 @@
 <*.*>: package(lwt), package(cstruct.lwt)
 <*.*>: package(logs.fmt)
 <*.*>: package(astring), package(named-pipe.lwt)
-<*.*>: package(channel), package(io-page.unix)
+<*.*>: package(mirage-channel-lwt), package(io-page.unix)

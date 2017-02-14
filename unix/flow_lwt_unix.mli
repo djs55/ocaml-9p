@@ -15,6 +15,6 @@
  *
  *)
 
-include V1_LWT.FLOW
+include Mirage_flow_lwt.S
 
 val connect: Lwt_unix.file_descr -> flow

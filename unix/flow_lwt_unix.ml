@@ -22,8 +22,16 @@ type 'a io = 'a Lwt.t
 type buffer = Cstruct.t
 
 type error = Unix.error
+let pp_error f error = Fmt.string f (Printf.sprintf "Unix error: %s" (Unix.error_message error))
 
-let error_message = Unix.error_message
+type write_error = [
+  | `Closed
+  | `Unix of Unix.error
+]
+
+let pp_write_error f = function
+  | `Closed -> Fmt.string f "Flow is closed"
+  | `Unix error -> Fmt.pf f "Unix errorr: %s" (Unix.error_message error)
 
 type flow = {
   fd: Lwt_unix.file_descr;
@@ -52,29 +60,29 @@ let safe op f r =
       | e -> Lwt.fail e)
 
 let read flow =
-  if flow.closed then Lwt.return `Eof
+  if flow.closed then Lwt.return (Ok `Eof)
   else begin
     if Cstruct.len flow.read_buffer = 0
     then flow.read_buffer <- Cstruct.create flow.read_buffer_size;
     safe Lwt_cstruct.read flow.fd flow.read_buffer >|= function
-    | 0 -> `Eof
+    | 0 -> Ok (`Eof)
     | n ->
       let result = Cstruct.sub flow.read_buffer 0 n in
       flow.read_buffer <- Cstruct.shift flow.read_buffer n;
-      `Ok result
+      Ok (`Data result)
   end
 
 let write flow buf =
-  if flow.closed then Lwt.return `Eof
+  if flow.closed then Lwt.return (Error `Closed)
   else
     Lwt_cstruct.complete (safe Lwt_cstruct.write flow.fd) buf >|= fun () ->
-    `Ok ()
+    Ok ()
 
 let writev flow bufs =
   let rec loop = function
-    | []      -> Lwt.return (`Ok ())
+    | []      -> Lwt.return (Ok ())
     | x :: xs ->
-      if flow.closed then Lwt.return `Eof
+      if flow.closed then Lwt.return (Error `Closed)
       else
         Lwt_cstruct.complete (safe Lwt_cstruct.write flow.fd) x >>= fun () ->
         loop xs
